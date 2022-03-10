@@ -1,27 +1,16 @@
 import gym
 from collections import deque
 import numpy as np
-import time
 
 import torch
 torch.manual_seed(0) # set random seed
-import torch.nn as nn
-import torch.nn.functional as F
+#import torch.nn as nn
+#import torch.nn.functional as F
 import torch.optim as optim
-from torch.distributions import Categorical
+#from torch.distributions import Categorical
 from policy import Policy
-from gym.wrappers.monitoring.video_recorder import VideoRecorder
-'''
-env = gym.make('Acrobot-v1')
-        env.seed(0)
-        print('observation space:', env.observation_space)
-        print('action space:', env.action_space)
+#from gym.wrappers.monitoring.video_recorder import VideoRecorder
 
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-        policy = Policy().to(device)
-        optimizer = optim.Adam(policy.parameters(), lr=0.001)
-'''
 
 class ModelManager:
     def __init__(self,env_name='Acrobot-v1', learningRate=0.001):
@@ -38,6 +27,7 @@ class ModelManager:
     def train(self,n_episodes=5000, max_t=1000, gamma=1.0, print_every=100):
         scores_deque = deque(maxlen=100)
         scores = []
+        output = open('checkpoint.pth', mode="wb")
         for i_episode in range(1, n_episodes+1):
             saved_log_probs = []
             rewards = []
@@ -65,9 +55,10 @@ class ModelManager:
             self.optimizer.step()
 
             if i_episode % print_every == 0:
-                torch.save(self.policy.state_dict(), 'checkpoint.pth')
+                torch.save(self.policy.state_dict(), output)
                 print('Episode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
         self.env.close()
+        output.close()
         return scores
 
 
