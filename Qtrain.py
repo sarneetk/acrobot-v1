@@ -87,7 +87,7 @@ class QLearning:
 
     def  play_agent(self):
         # test environment with q table
-        recorder = VideoRecorder(self.env, path='./video2.mp4', enabled=True)
+        recorder = VideoRecorder(self.env, path='./Acrobot_Q.mp4', enabled=True)
         state = self.discretize(self.env.reset(), self.bucket_size)
         done = False
         #img = plt.imshow(self.env.render(mode='rgb_array'))

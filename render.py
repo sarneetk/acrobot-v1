@@ -21,7 +21,7 @@ class RenderManager:
 
     def play_agent(self):
 
-        recorder = VideoRecorder(self.env, path='./video.mp4', enabled=True)
+        recorder = VideoRecorder(self.env, path='./Acrobot_FFN.mp4', enabled=True)
         state=self.env.reset()
         for i_episode in range(20):
             observation = self.env.reset()
