@@ -4,6 +4,7 @@ from gym.wrappers.monitoring.video_recorder import VideoRecorder
 import torch
 import time
 import matplotlib.pyplot as plt
+from util import plot_graph
 
 from IPython import display
 torch.manual_seed(0) # set random seed
@@ -27,7 +28,7 @@ class QLearning:
         # set hyperparameters
         self.lr = 0.1
         self.discount_rate = 0.95
-        self.episodes = 3000
+        self.episodes = 5000
         self.discount_factor = 0.9
 
         # exploration vs exploitation factor
@@ -48,9 +49,11 @@ class QLearning:
     def train(self, n_episodes=5000, max_t=1000, gamma=1.0, print_every=100):
         # reset the environment
         # learning loop
+        rewards_per_episode = {}
         for i in range(self.episodes):
             state = self.discretize(self.env.reset(), self.bucket_size)
             done = False
+            rewards = []
 
             # run an episode until completion
             while not done:
@@ -65,7 +68,7 @@ class QLearning:
                 # take action and recieve new state
                 new_state, reward, done, _ = self.env.step(action)
                 new_state = self.discretize(new_state, self.bucket_size)
-
+                rewards.append(reward)
                 if not done:
                     # update q table
                     self.q_table[state][action] = self.q_table[state][action] + self.lr * (
@@ -82,15 +85,17 @@ class QLearning:
 
             if i % 50 == 0:
                 print("Episodes: {}/{}     Epsilon:{}".format(i, self.episodes, self.eps))
+            rewards_per_episode[i] = sum(rewards)
+        plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'Q_Learning  ')
 
         self.env.close()
 
     def  play_agent(self):
         # test environment with q table
-        recorder = VideoRecorder(self.env, path='./Acrobot_Q.mp4', enabled=True)
+        recorder = VideoRecorder(self.env, path='assets/Acrobot_Q.mp4', enabled=True)
         state = self.discretize(self.env.reset(), self.bucket_size)
         done = False
-        #img = plt.imshow(self.env.render(mode='rgb_array'))
+        # img = plt.imshow(self.env.render(mode='rgb_array'))
         while not done:
             recorder.capture_frame()
             self.env.render()
