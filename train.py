@@ -1,7 +1,8 @@
 import gym
 from collections import deque
 import numpy as np
-
+import matplotlib.pyplot as plt
+from util import plot_graph
 import torch
 torch.manual_seed(0) # set random seed
 #import torch.nn as nn
@@ -28,6 +29,7 @@ class ModelManager:
         scores_deque = deque(maxlen=100)
         scores = []
         output = open('checkpoint.pth', mode="wb")
+        rewards_per_episode = {}
         for i_episode in range(1, n_episodes+1):
             saved_log_probs = []
             rewards = []
@@ -57,6 +59,10 @@ class ModelManager:
             if i_episode % print_every == 0:
                 torch.save(self.policy.state_dict(), output)
                 print('Episode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
+                rewards_per_episode[i_episode] = sum(rewards)
+                # print(rewards_per_episode)
+
+        plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'FFN')
         self.env.close()
         output.close()
         return scores
