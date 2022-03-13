@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from IPython import display
 import time
+from gym.wrappers.monitoring.video_recorder import VideoRecorder
+from util import plot_graph
 
 
 class ActorCritic:
@@ -34,17 +36,20 @@ class ActorCritic:
 
         return tf.squeeze(policy_dist), tf.squeeze(value)
 
-    def train_episode(self, env, max_steps):
+    def train_episode(self, env, max_steps,itr, episodes,recorder,render=False):
 
         state = env.reset()
         rewards = []
         values = []
         log_probs = []
 
+
         with tf.GradientTape(persistent=True) as tape:
 
             for step in range(max_steps):
-
+                if itr >= (episodes - 100) and render==True:
+                    recorder.capture_frame()
+                    #env.render()
                 policy_dist, value = self.forward(state)
                 action = np.random.choice(self.num_actions, p=policy_dist.numpy())
 
@@ -110,32 +115,38 @@ class A2C_Learning:
         plt.plot(list(range(len(mva))), mva, label="Moving Average")
         plt.legend()
 
-    def  play_agent(self):
+    def  play_agent(self,render):
 
         env = self.env
         total_rewards = []
         actor_critic = ActorCritic(env.observation_space.shape, env.action_space.n, total_rewards)
+        recorder = VideoRecorder(env, path='assets/Acrobot_A2C.mp4', enabled=True)
 
-
-        for episode in range(1200):
+        ave_reward_list= {}
+        n_episodes=1200
+        for episode in range(n_episodes):
             try:
-                print(f'In Episode {episode}')
+                #print(f'In Episode {episode}')
 
-                reward = actor_critic.train_episode(env, 10000)
+                reward = actor_critic.train_episode(env, 10000,episode,n_episodes,recorder,render)
                 display.clear_output(wait=True)
                 total_rewards.append(reward)
 
-                print(np.mean(total_rewards), np.mean(total_rewards[-10:]), max(total_rewards))
-
-
             except KeyboardInterrupt:
-                plt.plot(list(range(len(total_rewards))), total_rewards)
-                plt.show()
+                ave_reward_list[episode]=(np.mean(total_rewards))
+
+                plot_graph(ave_reward_list.keys(), ave_reward_list.values(),
+                           'A2C_' + str(n_episodes) )
+
                 actor_critic.actor.save('actor.h5')
                 time.sleep(5)
 
-        plt.plot(list(range(len(total_rewards))), total_rewards)
-        plt.show()
-        actor_critic.actor.save('actor.h5')
+            if episode % 100 == 0:
+                print('Episode:{}/{} Avg Rewards: {}'.format(episode,n_episodes,  np.mean(total_rewards)))
+                ave_reward_list[episode]=(np.mean(total_rewards))
+                total_rewards = []
+        Addl_info = '_'+ str(n_episodes)
+        plot_graph(ave_reward_list.keys(), ave_reward_list.values(),
+                   'A2C' , Addl_info)
 
-        self.plot(total_rewards)
+        actor_critic.actor.save('actor.h5')
