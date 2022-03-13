@@ -61,8 +61,8 @@ class ModelManager:
                 print('Episode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
                 rewards_per_episode[i_episode] = sum(rewards)
                 # print(rewards_per_episode)
-
-        plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'FFN')
+        Addl_info = '_' + str(n_episodes)
+        plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'FFN',Addl_info)
         self.env.close()
         output.close()
         return scores
