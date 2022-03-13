@@ -8,13 +8,14 @@ import torch.multiprocessing as mp
 import time
 from gym.wrappers.monitoring.video_recorder import VideoRecorder
 import numpy as np
+from util import plot_graph
 
 # Hyperparameters
 n_train_processes = 3
 learning_rate = 0.0002
 update_interval = 5
 gamma = 0.98
-max_train_ep = 300
+max_train_ep = 1000
 max_test_ep = 10
 
 
@@ -67,7 +68,7 @@ class A3C_Learning:
 
         #env = gym.make('CartPole-v1')
         env = gym.make(env_name)
-
+        rewards_per_episode = {}
         for n_epi in range(max_train_ep):
             done = False
             s = env.reset()
@@ -110,10 +111,12 @@ class A3C_Learning:
                     global_param._grad = local_param.grad
                 optimizer.step()
                 local_model.load_state_dict(global_model.state_dict())
-
+            rewards_per_episode[n_epi] = sum(r_lst)
+            # print(rewards_per_episode)
 
         env.close()
         print("Training process {} reached maximum episode.".format(rank))
+        plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'cartpole  ')
 
 
     def test(self,global_model,env_name):
@@ -122,7 +125,7 @@ class A3C_Learning:
         score = 0.0
         print_interval = 20
         print("Started Testing")
-        recorder = VideoRecorder(env, path='./Acrobot_A3C.mp4', enabled=True)
+        recorder = VideoRecorder(env, path='assets/Acrobot_A3C.mp4', enabled=True)
         for n_epi in range(max_test_ep):
             done = False
             s = env.reset()
