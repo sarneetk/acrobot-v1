@@ -68,7 +68,8 @@ class A3C_Learning:
 
         #env = gym.make('CartPole-v1')
         env = gym.make(env_name)
-        rewards_per_episode = {}
+        rewards_per_episode = []
+        ave_reward_list = {}
         for n_epi in range(max_train_ep):
             done = False
             s = env.reset()
@@ -79,6 +80,7 @@ class A3C_Learning:
                     m = Categorical(prob)
                     a = m.sample().item()
                     s_prime, r, done, info = env.step(a)
+
 
                     s_lst.append(s)
                     a_lst.append([a])
@@ -111,12 +113,20 @@ class A3C_Learning:
                     global_param._grad = local_param.grad
                 optimizer.step()
                 local_model.load_state_dict(global_model.state_dict())
-            rewards_per_episode[n_epi] = sum(r_lst)
+            rewards_per_episode.append( sum(r_lst)*10000)
             # print(rewards_per_episode)
+            if n_epi % 100 == 0:
+                ave_reward = np.mean(rewards_per_episode)
+                #print("Episodes: {}/{}     Epsilon:{}  Ave. Reward:{}".format(n_epi, self.episodes, self.eps, ave_reward))
+                ave_reward_list[n_epi] = ave_reward
+                rewards_per_episode = []
 
         env.close()
         print("Training process {} reached maximum episode.".format(rank))
-        plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'cartpole  ')
+        Addl_info='_'+str(max_train_ep)
+        plot_graph(ave_reward_list.keys(), ave_reward_list.values(),
+                   'A3C_Learning', Addl_info)
+        #plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'cartpole  ')
 
 
     def test(self,global_model,env_name):

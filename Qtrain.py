@@ -49,11 +49,13 @@ class QLearning:
     def train(self, n_episodes=5000, max_t=1000, gamma=1.0, print_every=100):
         # reset the environment
         # learning loop
-        rewards_per_episode = {}
+        rewards_per_episode = []
+        ave_reward_list= {}
         for i in range(self.episodes):
             state = self.discretize(self.env.reset(), self.bucket_size)
             done = False
             rewards = []
+            total_reward=0
 
             # run an episode until completion
             while not done:
@@ -69,6 +71,7 @@ class QLearning:
                 new_state, reward, done, _ = self.env.step(action)
                 new_state = self.discretize(new_state, self.bucket_size)
                 rewards.append(reward)
+                total_reward+=reward
                 if not done:
                     # update q table
                     self.q_table[state][action] = self.q_table[state][action] + self.lr * (
@@ -78,15 +81,19 @@ class QLearning:
 
                     # update state
                 state = new_state
-
+            rewards_per_episode.append(sum(rewards))
             # slowly decrease exploration factor
             if self.eps_start_decay <= i < self.eps_end_decay:
                 self.eps -= self.eps_decay_rate
 
-            if i % 50 == 0:
-                print("Episodes: {}/{}     Epsilon:{}".format(i, self.episodes, self.eps))
-            rewards_per_episode[i] = sum(rewards)
-        plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'Q_Learning  ')
+            if i % 100 == 0:
+                ave_reward = np.mean(rewards_per_episode)
+                print("Episodes: {}/{}     Epsilon:{}  Ave. Reward:{}".format(i, self.episodes, self.eps,ave_reward))
+                ave_reward_list[i]=ave_reward
+                rewards_per_episode=[]
+
+        Addl_info = '_' + str(self.episodes)+'_lr'+str(self.lr)+'_r'+str(self.discount_rate)
+        plot_graph(ave_reward_list.keys(), ave_reward_list.values(), 'Q_Learning',Addl_info)
 
         self.env.close()
 

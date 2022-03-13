@@ -51,7 +51,8 @@ def A2C_Reinforcement(parameters):
     mode = parameters['mode']
     env_name = 'Acrobot-v1'
     A2C = A2C_Learning(env_name)
-    A2C.play_agent()
+    render=True
+    A2C.play_agent(render)
 
 def A3C_Reinforcement(parameters):
     mode = parameters['mode']
@@ -74,11 +75,12 @@ if __name__ == '__main__':
     elif(model=='Q'):
         QLearn_Reinforcement(par__main)
     elif(model=='A2C'):
+
         A2C_Reinforcement(par__main)
     elif (model == 'A3C'):
         A3C_Reinforcement(par__main)
     else:
-        print('no-op: unknown mode {} {}'.format(model))
+        print('no-op: unknown model {} {}'.format(model))
 
 
 
