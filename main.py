@@ -56,7 +56,8 @@ def A2C_Reinforcement(parameters):
 
 def A3C_Reinforcement(parameters):
     mode = parameters['mode']
-    env_name = 'Acrobot-v1'
+    env_name = 'CartPole-v1' if (parameters['env'] == 'cartpole') else 'Acrobot-v1'
+    # env_name = 'CartPole-v1'
     A3C = A3C_Learning(env_name)
     A3C.A3C_process()
     print("Finished A3C")
@@ -65,6 +66,7 @@ def A3C_Reinforcement(parameters):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--models', required=True,choices={'FFN','Q', 'A2C','A3C'})
+    parser.add_argument('--env', required=True,choices={'acrobot','cartpole'})
 
     parser.add_argument('--mode', required=False, choices={'train_only','train_and_render', 'render_only'})
     parser.add_argument('--n_episodes', type=int, default=10000)

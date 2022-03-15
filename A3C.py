@@ -20,9 +20,10 @@ max_test_ep = 10
 
 
 class ActorCritic(nn.Module):
-    def __init__(self):
+    def __init__(self, env_name):
         super(ActorCritic, self).__init__()
-        self.fc1 = nn.Linear(6, 256)
+        obs_space = 4 if (env_name == 'CartPole-v1') else 6
+        self.fc1 = nn.Linear(obs_space, 256)
         self.fc_pi = nn.Linear(256, 2)
         self.fc_v = nn.Linear(256, 1)
 
@@ -44,7 +45,7 @@ class ActorCritic(nn.Module):
 class A3C_Learning:
     def __init__(self,env_name):
 
-        self.global_model = ActorCritic()
+        self.global_model = ActorCritic(env_name)
         self.global_model.share_memory()
         self.env_name=env_name
 
@@ -61,7 +62,7 @@ class A3C_Learning:
             p.join()
 
     def train(self,global_model, rank,env_name):
-        local_model = ActorCritic()
+        local_model = ActorCritic(env_name)
         local_model.load_state_dict(global_model.state_dict())
 
         optimizer = optim.Adam(global_model.parameters(), lr=learning_rate)
@@ -125,7 +126,7 @@ class A3C_Learning:
         print("Training process {} reached maximum episode.".format(rank))
         Addl_info='_'+str(max_train_ep)
         plot_graph(ave_reward_list.keys(), ave_reward_list.values(),
-                   'A3C_Learning', Addl_info)
+                   'A3C_Learning' + env_name, Addl_info)
         #plot_graph(rewards_per_episode.keys(), rewards_per_episode.values(), 'cartpole  ')
 
 
