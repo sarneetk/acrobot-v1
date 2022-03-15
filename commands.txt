@@ -1,0 +1,4 @@
+python main.py --mode train_and_render --models A3C --n_episodes 5000 --env cartpole
+python main.py --mode train_and_render --models FFN --n_episodes 5000 --env cartpole
+python main.py --mode train_and_render --models A2C --n_episodes 5000 --env cartpole
+python main.py --mode train_and_render --models Q --n_episodes 5000 --env cartpole

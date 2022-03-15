@@ -95,6 +95,7 @@ class ActorCritic:
 
 class A2C_Learning:
     def __init__(self,env_name):
+        self.env_name = env_name
         self.env = gym.make(env_name)
 
     def plot(self, total_rewards):
@@ -120,7 +121,7 @@ class A2C_Learning:
         env = self.env
         total_rewards = []
         actor_critic = ActorCritic(env.observation_space.shape, env.action_space.n, total_rewards)
-        recorder = VideoRecorder(env, path='assets/Acrobot_A2C.mp4', enabled=True)
+        recorder = VideoRecorder(env, path='assets/' + self.env_name + '_A2C.mp4', enabled=True)
 
         ave_reward_list= {}
         n_episodes=1200
@@ -136,7 +137,7 @@ class A2C_Learning:
                 ave_reward_list[episode]=(np.mean(total_rewards))
 
                 plot_graph(ave_reward_list.keys(), ave_reward_list.values(),
-                           'A2C_' + str(n_episodes) )
+                           'A2C_' + self.env_name + str(n_episodes), '' )
 
                 actor_critic.actor.save('actor.h5')
                 time.sleep(5)
@@ -147,6 +148,6 @@ class A2C_Learning:
                 total_rewards = []
         Addl_info = '_'+ str(n_episodes)
         plot_graph(ave_reward_list.keys(), ave_reward_list.values(),
-                   'A2C' , Addl_info)
+                   'A2C' + self.env_name , Addl_info)
 
         actor_critic.actor.save('actor.h5')

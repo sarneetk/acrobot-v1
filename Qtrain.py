@@ -11,6 +11,7 @@ torch.manual_seed(0) # set random seed
 
 class QLearning:
     def __init__(self, env_name='Acrobot-v1', learningRate=0.001):
+        self.env_name = env_name
         self.env = gym.make(env_name)
         self.env.seed(0)
         print('observation space:', self.env.observation_space)
@@ -93,13 +94,13 @@ class QLearning:
                 rewards_per_episode=[]
 
         Addl_info = '_' + str(self.episodes)+'_lr'+str(self.lr)+'_r'+str(self.discount_rate)
-        plot_graph(ave_reward_list.keys(), ave_reward_list.values(), 'Q_Learning',Addl_info)
+        plot_graph(ave_reward_list.keys(), ave_reward_list.values(), self.env_name + 'Q_Learning' ,Addl_info)
 
         self.env.close()
 
     def  play_agent(self):
         # test environment with q table
-        recorder = VideoRecorder(self.env, path='assets/Acrobot_Q.mp4', enabled=True)
+        recorder = VideoRecorder(self.env, path='assets/' + self.env_name + '_Q.mp4', enabled=True)
         state = self.discretize(self.env.reset(), self.bucket_size)
         done = False
         # img = plt.imshow(self.env.render(mode='rgb_array'))
